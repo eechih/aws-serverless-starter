@@ -15,7 +15,6 @@ export class PipelineStack extends cdk.Stack {
     super(scope, id, props)
 
     const pipeline = new CodePipeline(this, 'Pipeline', {
-      // pipelineName: `${config.appName}-pipeline`,
       synth: new CodeBuildStep('SynthStep', {
         input: CodePipelineSource.gitHub(
           `${config.sourceRepoOwner}/${config.sourceRepoName}`,
@@ -26,25 +25,30 @@ export class PipelineStack extends cdk.Stack {
       }),
     })
 
-    const deployTestStage = pipeline.addStage(
-      new DeoployStage(this, 'DeployTest', {
-        stackName: `${config.appName}-test`,
-      })
-    )
+    const deployDevStage = pipeline.addStage(new DeoployStage(this, 'Dev'), {
+      pre: [
+        new CodeBuildStep('UnitTest', {
+          commands: ['npm ci', 'npm run test'],
+        }),
+      ],
+    })
 
-    deployTestStage.addPre(
-      new CodeBuildStep('UnitTest', {
-        projectName: 'UnitTest',
-        commands: ['npm ci', 'npm run test'],
-      })
-    )
+    const deployTestStage = pipeline.addStage(new DeoployStage(this, 'Test'), {
+      pre: [new ManualApprovalStep('ManualApproval')],
+      post: [
+        new CodeBuildStep('IntegrationTest', {
+          commands: ['echo Run integration test'],
+        }),
+      ],
+    })
 
-    const deployProdStage = pipeline.addStage(
-      new DeoployStage(this, 'DeployProd', {
-        stackName: `${config.appName}-prod`,
-      })
-    )
-
-    deployProdStage.addPre(new ManualApprovalStep('ManualApproval'))
+    const deployProdStage = pipeline.addStage(new DeoployStage(this, 'Prod'), {
+      pre: [new ManualApprovalStep('ManualApproval')],
+      post: [
+        new CodeBuildStep('TestAPIGatewayEndpoint', {
+          commands: ['echo Test API Gateway Endpoint'],
+        }),
+      ],
+    })
   }
 }
