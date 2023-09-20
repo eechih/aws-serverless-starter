@@ -7,6 +7,7 @@ import {
 } from 'aws-cdk-lib/pipelines'
 
 import config from '../app.config'
+import { DeoployStage } from './deploy-stage'
 
 export class PipelineStack extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
@@ -24,6 +25,8 @@ export class PipelineStack extends cdk.Stack {
       }),
     })
 
-    // const deployStage = pipeline.addStage(new DeoployStage(this, 'Deploy'))
+    const deployStage = pipeline.addStage(
+      new DeoployStage(this, 'Deploy', { stageName: config.appName + '-dev' })
+    )
   }
 }
