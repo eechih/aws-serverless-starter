@@ -10,6 +10,6 @@ export class DeoployStage extends Stage {
     super(scope, id, props)
     const { stackName } = props
 
-    const service = new AwsServerlessStarterStack(this, stackName)
+    const service = new AwsServerlessStarterStack(scope, stackName)
   }
 }

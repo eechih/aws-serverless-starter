@@ -26,17 +26,16 @@ export class PipelineStack extends cdk.Stack {
       }),
     })
 
-    const unitTestStage = pipeline.addStage(new cdk.Stage(this, 'UnitTest'))
-    unitTestStage.addPost(
-      new CodeBuildStep('UnitTest', {
-        projectName: 'UnitTest',
-        commands: ['npm ci', 'npm run test'],
-      })
-    )
-
     const deployTestStage = pipeline.addStage(
       new DeoployStage(this, 'DeployTest', {
         stackName: `${config.appName}-test`,
+      })
+    )
+
+    deployTestStage.addPre(
+      new CodeBuildStep('UnitTest', {
+        projectName: 'UnitTest',
+        commands: ['npm ci', 'npm run test'],
       })
     )
 
