@@ -4,6 +4,7 @@ import {
   CodeBuildStep,
   CodePipeline,
   CodePipelineSource,
+  ManualApprovalStep,
 } from 'aws-cdk-lib/pipelines'
 
 import config from '../app.config'
@@ -25,8 +26,26 @@ export class PipelineStack extends cdk.Stack {
       }),
     })
 
-    const deployStage = pipeline.addStage(
-      new DeoployStage(this, 'Deploy', { stageName: 'dev' })
+    const unitTestStage = pipeline.addStage(new cdk.Stage(this, 'UnitTest'))
+    unitTestStage.addPost(
+      new CodeBuildStep('UnitTest', {
+        projectName: 'UnitTest',
+        commands: ['npm ci', 'npm run test'],
+      })
     )
+
+    const deployTestStage = pipeline.addStage(
+      new DeoployStage(this, 'DeployTest', {
+        stackName: `${config.appName}-test`,
+      })
+    )
+
+    const deployProdStage = pipeline.addStage(
+      new DeoployStage(this, 'DeployProd', {
+        stackName: `${config.appName}-prod`,
+      })
+    )
+
+    deployProdStage.addPre(new ManualApprovalStep('ManualApproval'))
   }
 }

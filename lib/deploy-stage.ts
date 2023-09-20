@@ -1,15 +1,15 @@
 import { Stage, StageProps } from 'aws-cdk-lib'
 import { Construct } from 'constructs'
-import config from '../app.config'
 import { AwsServerlessStarterStack } from './aws-serverless-starter-stack'
 
+export interface DeployStageProps extends StageProps {
+  stackName: string
+}
 export class DeoployStage extends Stage {
-  constructor(scope: Construct, id: string, props?: StageProps) {
+  constructor(scope: Construct, id: string, props: DeployStageProps) {
     super(scope, id, props)
+    const { stackName } = props
 
-    const service = new AwsServerlessStarterStack(
-      this,
-      `${config.appName}-${this.stageName}`
-    )
+    const service = new AwsServerlessStarterStack(this, stackName)
   }
 }
