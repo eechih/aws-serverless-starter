@@ -8,7 +8,7 @@ import {
 } from 'aws-cdk-lib/pipelines'
 
 import config from '../app.config'
-import { DeoployStage } from './deploy-stage'
+import { PipelineStage } from './pipeline-stage'
 
 export class PipelineStack extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
@@ -25,7 +25,7 @@ export class PipelineStack extends cdk.Stack {
       }),
     })
 
-    const deployDevStage = pipeline.addStage(new DeoployStage(this, 'Dev'), {
+    const devStage = pipeline.addStage(new PipelineStage(this, 'Dev'), {
       pre: [
         new CodeBuildStep('UnitTest', {
           commands: ['npm ci', 'npm run test'],
@@ -33,7 +33,7 @@ export class PipelineStack extends cdk.Stack {
       ],
     })
 
-    const deployTestStage = pipeline.addStage(new DeoployStage(this, 'Test'), {
+    const testStage = pipeline.addStage(new PipelineStage(this, 'Test'), {
       pre: [new ManualApprovalStep('ManualApproval')],
       post: [
         new CodeBuildStep('IntegrationTest', {
@@ -42,7 +42,7 @@ export class PipelineStack extends cdk.Stack {
       ],
     })
 
-    const deployProdStage = pipeline.addStage(new DeoployStage(this, 'Prod'), {
+    const prodStage = pipeline.addStage(new PipelineStage(this, 'Prod'), {
       pre: [new ManualApprovalStep('ManualApproval')],
       post: [
         new CodeBuildStep('TestAPIGatewayEndpoint', {
