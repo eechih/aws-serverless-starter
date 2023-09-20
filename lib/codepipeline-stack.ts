@@ -20,13 +20,13 @@ export class PipelineStack extends cdk.Stack {
           `${config.sourceRepoOwner}/${config.sourceRepoName}`,
           config.sourceBranch
         ),
-        installCommands: ['npm install -g aws-cdk'],
-        commands: ['npm ci', 'npm run build', 'npx cdk synth'],
+        installCommands: ['npm install -g aws-cdk@2'],
+        commands: ['npm ci', 'npm run build', 'cdk synth'],
       }),
     })
 
     const deployStage = pipeline.addStage(
-      new DeoployStage(this, 'Deploy', { stageName: config.appName + '-dev' })
+      new DeoployStage(this, 'Deploy', { stageName: 'dev' })
     )
   }
 }
