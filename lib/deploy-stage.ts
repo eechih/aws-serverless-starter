@@ -8,7 +8,7 @@ export class DeoployStage extends Stage {
     super(scope, id, props)
 
     const service = new AwsServerlessStarterStack(this, 'Service', {
-      stackName: `${config}-${this.stageName}`,
+      stackName: `${config.appName}-${this.stageName}`,
     })
   }
 }
