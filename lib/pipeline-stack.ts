@@ -1,5 +1,4 @@
 import * as cdk from 'aws-cdk-lib'
-import { join } from 'path'
 
 import * as codeBuild from 'aws-cdk-lib/aws-codebuild'
 import * as codePipeline from 'aws-cdk-lib/aws-codepipeline'
@@ -11,10 +10,11 @@ import * as s3 from 'aws-cdk-lib/aws-s3'
 import config from '../app.config'
 
 export interface Stage {
-  name: string
+  stageName: string
   pipelineExecutionRole: iam.IRole
   cloudFormationExecutionRole: iam.IRole
   artifactsBucket: s3.IBucket
+  approvalEnabled?: boolean
 }
 
 export interface PipelineStackProps extends cdk.StackProps {
@@ -76,9 +76,24 @@ export class PipelineStack extends cdk.Stack {
       this,
       'CodeBuildProjectUnitTest',
       {
-        buildSpec: codeBuild.BuildSpec.fromAsset(
-          join(__dirname, '..', 'pipeline', 'buildspec_unit_test.yml')
-        ),
+        buildSpec: codeBuild.BuildSpec.fromObject({
+          version: '0.2',
+          phases: {
+            install: {
+              'runtime-versions': {
+                nodejs: 18,
+              },
+            },
+            pre_build: {
+              commands: ['echo Installing dependencies', 'npm install'],
+            },
+            build: { commands: ['echo Running unit tests', 'npm run test'] },
+          },
+          artifacts: {
+            files: '**/*',
+            'enable-symlinks': true,
+          },
+        }),
         environment: codeBuildEnvironment,
         environmentVariables: {
           HUSKY: {
@@ -100,6 +115,77 @@ export class PipelineStack extends cdk.Stack {
           outputs: [unitTestOutput],
         }),
       ],
+    })
+
+    stages.forEach((stage, stageIndex) => {
+      const { stageName, approvalEnabled } = stage
+      const targetRegion =
+        this.node.tryGetContext(`${stageName}-region`) || this.region
+
+      if (approvalEnabled) {
+        pipeline.addStage({
+          stageName: `${stageName}Approve`,
+          actions: [
+            new codePipelineActions.ManualApprovalAction({
+              actionName: `${stageName}Approve`,
+              // notificationTopic: topic
+            }),
+          ],
+        })
+      }
+
+      const deployProject = new codeBuild.PipelineProject(
+        this,
+        `${config.appName}_${stageName}_deploy`,
+        {
+          projectName: `${config.appName}-${stageName}-deploy`,
+          buildSpec: codeBuild.BuildSpec.fromObject({
+            version: '0.2',
+            phases: {
+              install: {
+                'runtime-versions': {
+                  nodejs: 18,
+                },
+                commands: ['npm install -g aws-cdk', 'cdk --version'],
+              },
+              pre_build: {
+                commands: [
+                  'bash ./assume-role.sh ${ENV_PIPELINE_EXECUTION_ROLE} deploy',
+                ],
+              },
+              build: {
+                commands: [`cdk deploy ${config.appName}-${stageName}`],
+              },
+            },
+          }),
+          environment: codeBuildEnvironment,
+          environmentVariables: {
+            ENV_PIPELINE_EXECUTION_ROLE: {
+              type: codeBuild.BuildEnvironmentVariableType.PLAINTEXT,
+              value: stage.pipelineExecutionRole.roleArn,
+            },
+          },
+        }
+      )
+
+      deployProject.role?.addToPrincipalPolicy(
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          actions: ['sts:AssumeRole'],
+          resources: [stage.cloudFormationExecutionRole.roleArn],
+        })
+      )
+
+      pipeline.addStage({
+        stageName: `${stageName}Deploy`,
+        actions: [
+          new codePipelineActions.CodeBuildAction({
+            actionName: `${stageName}_deploy`,
+            project: deployProject,
+            input: unitTestOutput,
+          }),
+        ],
+      })
     })
   }
 }

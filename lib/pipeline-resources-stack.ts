@@ -49,7 +49,7 @@ export class PipelineResourcesStack extends cdk.Stack {
       this.artifactsBucket = new s3.Bucket(this, `ArtifactsBucket`, {
         encryption: s3.BucketEncryption.S3_MANAGED,
         blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-        removalPolicy: cdk.RemovalPolicy.RETAIN,
+        removalPolicy: cdk.RemovalPolicy.DESTROY,
         versioned: true,
       })
     }

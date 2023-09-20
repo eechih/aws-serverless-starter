@@ -8,6 +8,8 @@ unset AWS_SESSION_TOKEN
 unset AWS_ACCESS_KEY_ID
 unset AWS_SECRET_ACCESS_KEY
 
+echo "assume role...."
+
 cred=$(aws sts assume-role --role-arn "$ROLE" \
                            --role-session-name "$SESSION_NAME" \
                            --query '[Credentials.AccessKeyId,Credentials.SecretAccessKey,Credentials.SessionToken]' \
@@ -21,3 +23,8 @@ export AWS_SECRET_ACCESS_KEY=$SECRET_ACCESS_KEY
 
 SESSION_TOKEN=$(echo "$cred" | awk '{ print $3 }')
 export AWS_SESSION_TOKEN=$SESSION_TOKEN
+
+
+echo "ACCESS_KEY_ID = ${ACCESS_KEY_ID}"
+echo "SECRET_ACCESS_KEY = ${SECRET_ACCESS_KEY}"
+echo "SESSION_TOKEN = ${SESSION_TOKEN}"
