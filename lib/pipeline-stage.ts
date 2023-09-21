@@ -7,10 +7,8 @@ export class PipelineStage extends Stage {
   constructor(scope: Construct, id: string, props?: StageProps) {
     super(scope, id, props)
 
-    const stackName = config.appName + '-' + this.stageName
-
-    const service = new AwsServerlessStarterStack(this, 'Service', {
-      stackName,
+    new AwsServerlessStarterStack(this, 'Service', {
+      stackName: `${config.appName}-${this.stageName}`,
     })
   }
 }

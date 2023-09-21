@@ -13,11 +13,9 @@ try {
 }
 
 export default {
+  gitRepo: appConfig.gitRepo,
+  gitBranch: appConfig.gitBranch,
+  appName: appConfig.appName,
   nsDomain: appConfig.domainConfig.nsDomain,
-  runtime: 'nodejs16.x',
-  sourceRepoOwner: appConfig.sourceRepo.owner,
-  sourceRepoName: appConfig.sourceRepo.name,
-  sourceBranch: appConfig.sourceRepo.branch,
   siteBucketPrefix: appConfig.domainConfig.siteBucketPrefix,
-  appName: appConfig.sourceRepo.name,
 }

@@ -1,14 +1,10 @@
-# This file must be updated, committed and pushed for your
-# SLIC Starter-based application deployment to work
-sourceRepo:
-  # This should be changed to match your own repo and branch
-  owner: eechih
-  name: aws-serverless-starter
-  branch: main
+gitRepo: eechih/aws-serverless-starter
+gitBranch: main
+appName: mydrinkshop
 
 domainConfig:
   # Set 'nsDomain' to an empty string ('') if you are not using custom domains. Do not remove it.
-  nsDomain: sliclists.com
+  #nsDomain: mydrinkshop.com
 
   # Set 'siteBucketPrefix' if you are not using custom domains
   # It will be used, along with the stage value as a bucket name
@@ -18,5 +14,5 @@ domainConfig:
   domainPrefixes:
     dev: dev.
     stg: stg.
-    prod: ''
+    prod: 'prod.'
     local: ''
