@@ -7,7 +7,7 @@ import {
   ManualApprovalStep,
 } from 'aws-cdk-lib/pipelines'
 
-import config from '../app.config'
+import config from './config'
 import { PipelineStage } from './pipeline-stage'
 
 export class PipelineStack extends cdk.Stack {
@@ -16,7 +16,7 @@ export class PipelineStack extends cdk.Stack {
 
     const pipeline = new CodePipeline(this, 'Pipeline', {
       synth: new CodeBuildStep('SynthStep', {
-        input: CodePipelineSource.gitHub(config.gitBranch, config.gitRepo),
+        input: CodePipelineSource.gitHub(config.gitRepo, config.gitBranch),
         installCommands: ['npm install -g aws-cdk@2'],
         commands: ['npm ci', 'npm run build', 'cdk synth'],
       }),

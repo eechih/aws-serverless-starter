@@ -1,6 +1,6 @@
 import * as cdk from 'aws-cdk-lib'
 import { Template } from 'aws-cdk-lib/assertions'
-import * as AwsServerlessStarter from '../lib/aws-serverless-starter-stack'
+import * as AwsServerlessStarter from '../lib/service-stack'
 
 test('SQS Queue and SNS Topic Created', () => {
   const app = new cdk.App()
