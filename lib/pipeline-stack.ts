@@ -25,41 +25,32 @@ export class PipelineStack extends cdk.Stack {
     })
 
     // Deploy to development environment.
-    pipeline.addStage(
-      new PipelineStage(this, 'DeployDev', { stageName: 'dev' }),
-      {
-        pre: [
-          new CodeBuildStep('UnitTest', {
-            commands: ['npm ci', 'npm run test'],
-          }),
-        ],
-      }
-    )
+    pipeline.addStage(new PipelineStage(this, 'dev', { stageName: 'dev' }), {
+      pre: [
+        new CodeBuildStep('UnitTest', {
+          commands: ['npm ci', 'npm run test'],
+        }),
+      ],
+    })
 
     // Deploy to staging environment.
-    pipeline.addStage(
-      new PipelineStage(this, 'DeployStg', { stageName: 'stg' }),
-      {
-        pre: [new ManualApprovalStep('ManualApproval')],
-        post: [
-          new CodeBuildStep('IntegrationTest', {
-            commands: ['echo Run integration test'],
-          }),
-        ],
-      }
-    )
+    pipeline.addStage(new PipelineStage(this, 'stg', { stageName: 'stg' }), {
+      pre: [new ManualApprovalStep('ManualApproval')],
+      post: [
+        new CodeBuildStep('IntegrationTest', {
+          commands: ['echo Run integration test'],
+        }),
+      ],
+    })
 
     // Deploy to production environment.
-    pipeline.addStage(
-      new PipelineStage(this, 'DeployProd', { stageName: 'prod' }),
-      {
-        pre: [new ManualApprovalStep('ManualApproval')],
-        post: [
-          new CodeBuildStep('TestAPIGatewayEndpoint', {
-            commands: ['echo Test API Gateway Endpoint'],
-          }),
-        ],
-      }
-    )
+    pipeline.addStage(new PipelineStage(this, 'prod', { stageName: 'prod' }), {
+      pre: [new ManualApprovalStep('ManualApproval')],
+      post: [
+        new CodeBuildStep('TestAPIGatewayEndpoint', {
+          commands: ['echo Test API Gateway Endpoint'],
+        }),
+      ],
+    })
   }
 }

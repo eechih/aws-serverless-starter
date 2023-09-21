@@ -1,10 +1,24 @@
+appName: mydrinkshop
 gitRepo: eechih/aws-serverless-starter
 gitBranch: main
-appName: mydrinkshop
+
+google:
+  # Set 'clientId' to an empty string ('') if you are not using google login. Do not remove it.
+  clientId: 157732643487-bkqove0t2gjbeo4kna4u2t510mihkddb.apps.googleusercontent.com
+
+facebook:
+  # Set 'appId' to an empty string ('') if you are not using facebook login. Do not remove it.
+  appId: 627402469487090
+
+apple:
+  # Set 'servicesId' to an empty string ('') if you are not using apple login. Do not remove it.
+  servicesId: tw.com.is-land.drinkshop.dev.sid
+  teamId: NWQFXNWHUL
+  keyId: 556AVAQBKF
 
 domainConfig:
   # Set 'nsDomain' to an empty string ('') if you are not using custom domains. Do not remove it.
-  #nsDomain: mydrinkshop.com
+  nsDomain: dev3.creditgodbackend.com.tw
 
   # Set 'siteBucketPrefix' if you are not using custom domains
   # It will be used, along with the stage value as a bucket name
