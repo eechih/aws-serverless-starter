@@ -5,21 +5,19 @@ import { Construct } from 'constructs'
 
 import config from './config'
 
-export interface UserServiceStackProps {
+export interface CognitoConstructProps {
   stageName: string
 }
 
-export class UserService extends Construct {
+export class CognitoConstruct extends Construct {
   public readonly userPool: cognito.UserPool
   public readonly userPoolClient: cognito.IUserPoolClient
   public readonly identityProviderGoogle: cognito.UserPoolIdentityProviderGoogle
   public readonly identityProviderFacebook: cognito.UserPoolIdentityProviderFacebook
   public readonly identityProviderApple: cognito.UserPoolIdentityProviderApple
   public readonly identityPool: cognito.CfnIdentityPool
-  public readonly authRole: iam.IRole
-  public readonly unauthRole: iam.IRole
 
-  constructor(scope: Construct, id: string, props: UserServiceStackProps) {
+  constructor(scope: Construct, id: string, props: CognitoConstructProps) {
     super(scope, id)
 
     const { stageName } = props
@@ -168,45 +166,17 @@ export class UserService extends Construct {
           : {}),
       },
     })
+  }
 
-    this.authRole = new iam.Role(this, 'AuthRole', {
-      assumedBy: new iam.FederatedPrincipal(
-        'cognito-identity.amazonaws.com',
-        {
-          StringEquals: {
-            'cognito-identity.amazonaws.com:aud': this.identityPool.ref,
-          },
-          'ForAnyValue:StringLike': {
-            'cognito-identity.amazonaws.com:amr': 'authenticated',
-          },
-        },
-        'sts:AssumeRoleWithWebIdentity'
-      ),
-    })
-
-    this.unauthRole = new iam.Role(this, 'UnauthRole', {
-      assumedBy: new iam.FederatedPrincipal(
-        'cognito-identity.amazonaws.com',
-        {
-          StringEquals: {
-            'cognito-identity.amazonaws.com:aud': this.identityPool.ref,
-          },
-          'ForAnyValue:StringLike': {
-            'cognito-identity.amazonaws.com:amr': 'unauthenticated',
-          },
-        },
-        'sts:AssumeRoleWithWebIdentity'
-      ),
-    })
-
+  attachRolesToIdentityPool(authRole: iam.IRole, unauthRole: iam.IRole) {
     new cognito.CfnIdentityPoolRoleAttachment(
       this,
       'CfnIdentityPoolRoleAttachment',
       {
         identityPoolId: this.identityPool.ref,
         roles: {
-          authenticated: this.authRole.roleArn,
-          unauthenticated: this.unauthRole.roleArn,
+          authenticated: authRole.roleArn,
+          unauthenticated: unauthRole.roleArn,
         },
       }
     )

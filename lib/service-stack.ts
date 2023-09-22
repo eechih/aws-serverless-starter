@@ -1,32 +1,30 @@
-import { Duration, Stack, StackProps } from 'aws-cdk-lib'
-import * as sns from 'aws-cdk-lib/aws-sns'
-import * as subs from 'aws-cdk-lib/aws-sns-subscriptions'
-import * as sqs from 'aws-cdk-lib/aws-sqs'
+import { Stack, StackProps } from 'aws-cdk-lib'
 import { Construct } from 'constructs'
 
-import { UserService } from './user-service'
+import { CognitoConstruct } from './cognito-construct'
+import { IamConstruct } from './iam-construct'
+import { S3Construct } from './s3-construct'
 
 export interface ServiceStackProps extends StackProps {
-  /**
-   * @default local
-   */
-  stageName?: string
+  stageName: string
 }
 
 export class ServiceStack extends Stack {
-  constructor(scope: Construct, id: string, props?: ServiceStackProps) {
+  constructor(scope: Construct, id: string, props: ServiceStackProps) {
     super(scope, id, props)
 
-    const { stageName = 'local' } = props || {}
+    const { stageName } = props
 
-    const { userPool } = new UserService(this, 'user-service', { stageName })
+    const s3 = new S3Construct(this, 's3', { stageName })
 
-    const queue = new sqs.Queue(this, 'AwsServerlessStarterQueue', {
-      visibilityTimeout: Duration.seconds(300),
+    const cognito = new CognitoConstruct(this, 'cognito', { stageName })
+
+    const iam = new IamConstruct(this, 'iam', {
+      stageName,
+      bucket: s3.bucket,
+      identityPool: cognito.identityPool,
     })
 
-    const topic = new sns.Topic(this, 'AwsServerlessStarterTopic')
-
-    topic.addSubscription(new subs.SqsSubscription(queue))
+    cognito.attachRolesToIdentityPool(iam.authRole, iam.unauthRole)
   }
 }

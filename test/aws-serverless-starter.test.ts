@@ -5,7 +5,7 @@ import { ServiceStack } from '../lib/service-stack'
 test('SQS Queue and SNS Topic Created', () => {
   const app = new cdk.App()
   // WHEN
-  const stack = new ServiceStack(app, 'MyTestStack')
+  const stack = new ServiceStack(app, 'MyTestStack', { stageName: 'test' })
   // THEN
 
   const template = Template.fromStack(stack)
