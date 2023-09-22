@@ -18,8 +18,7 @@ export class Route53Construct extends Construct {
     const { stageName } = props
 
     if (config.domainConfig) {
-      const { nsDomain, domainPrefixes, apiCertificateArns } =
-        config.domainConfig
+      const { nsDomain, domainPrefixes } = config.domainConfig
 
       this.publicHostedZone = route53.HostedZone.fromLookup(
         this,
@@ -31,26 +30,16 @@ export class Route53Construct extends Construct {
 
       this.apiDomainName = `api.${domainPrefixes[stageName]}${nsDomain}`
 
-      const apiCertificateArn = apiCertificateArns[stageName]
-
-      if (apiCertificateArn !== '') {
-        this.apiCertificate = certificatemanager.Certificate.fromCertificateArn(
-          this,
-          'ApiCertificate',
-          apiCertificateArn
-        )
-      } else {
-        this.apiCertificate = new certificatemanager.Certificate(
-          this,
-          `ApiCertificate`,
-          {
-            domainName: this.apiDomainName,
-            validation: certificatemanager.CertificateValidation.fromDns(
-              this.publicHostedZone
-            ),
-          }
-        )
-      }
+      this.apiCertificate = new certificatemanager.Certificate(
+        this,
+        `ApiCertificate`,
+        {
+          domainName: this.apiDomainName,
+          validation: certificatemanager.CertificateValidation.fromDns(
+            this.publicHostedZone
+          ),
+        }
+      )
     }
   }
 }

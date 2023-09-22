@@ -1,12 +1,12 @@
+sourceConfig:
+  gitRepo: eechih/aws-serverless-starter
+  gitBranch: main
+
 appName: mydrinkshop
 
 # The deployment environment for a stack.
 deployAccount: '089370838833'
 deployRegion: us-east-1
-
-sourceConfig:
-  gitRepo: eechih/aws-serverless-starter
-  gitBranch: main
 
 domainConfig:
   # Set 'nsDomain' to an empty string ('') if you are not using custom domains. Do not remove it.
@@ -19,12 +19,8 @@ domainConfig:
 
   domainPrefixes:
     dev: dev.
+    test: test.
     stg: stg.
-    prod: ''
-
-  apiCertificateArns:
-    dev: ''
-    stg: ''
     prod: ''
 
 identityProviders:

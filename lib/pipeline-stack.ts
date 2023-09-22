@@ -25,14 +25,19 @@ export class PipelineStack extends cdk.Stack {
       }),
     })
 
-    // Deploy to development environment.
-    pipeline.addStage(new PipelineStage(this, 'dev', { stageName: 'dev' }), {
+    const wave = pipeline.addWave('wave', {
       pre: [
         new CodeBuildStep('UnitTest', {
           commands: ['npm ci', 'npm run test'],
         }),
       ],
     })
+
+    // Deploy to development environment.
+    wave.addStage(new PipelineStage(this, 'dev', { stageName: 'dev' }))
+
+    // Deploy to testing environment.
+    wave.addStage(new PipelineStage(this, 'test', { stageName: 'test' }))
 
     // Deploy to staging environment.
     pipeline.addStage(new PipelineStage(this, 'stg', { stageName: 'stg' }), {

@@ -19,7 +19,6 @@ export interface SourceConfig {
 export interface DomainConfig {
   nsDomain: string
   domainPrefixes: Record<string, string>
-  apiCertificateArns: Record<string, string>
 }
 
 export interface IdentityProviders {
