@@ -13,10 +13,11 @@ import { PipelineStage } from './pipeline-stage'
 export class PipelineStack extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
     super(scope, id, props)
+    const { gitRepo, gitBranch } = config.sourceConfig
 
     const pipeline = new CodePipeline(this, 'Pipeline', {
       synth: new CodeBuildStep('SynthStep', {
-        input: CodePipelineSource.gitHub(config.gitRepo, config.gitBranch, {
+        input: CodePipelineSource.gitHub(gitRepo, gitBranch, {
           authentication: cdk.SecretValue.secretsManager('github-token'),
         }),
         installCommands: ['npm install -g aws-cdk@2'],

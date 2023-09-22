@@ -1,0 +1,14 @@
+{
+  "hosted-zone:account=089370838833:domainName=dev3.creditgodbackend.com.tw:region=us-east-1": {
+    "Id": "/hostedzone/Z09535601R0RPYDFHAQ50",
+    "Name": "dev3.creditgodbackend.com.tw."
+  },
+  "hosted-zone:account=089370838833:domainName=dev3.creditgodbackend.com.tw:region=us-east-2": {
+    "Id": "/hostedzone/Z09535601R0RPYDFHAQ50",
+    "Name": "dev3.creditgodbackend.com.tw."
+  },
+  "hosted-zone:account=089370838833:domainName=dev3.creditgodbackend.com.tw:region=ap-southeast-1": {
+    "Id": "/hostedzone/Z09535601R0RPYDFHAQ50",
+    "Name": "dev3.creditgodbackend.com.tw."
+  }
+}

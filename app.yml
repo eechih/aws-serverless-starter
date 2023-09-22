@@ -1,20 +1,12 @@
 appName: mydrinkshop
-gitRepo: eechih/aws-serverless-starter
-gitBranch: main
 
-google:
-  # Set 'clientId' to an empty string ('') if you are not using google login. Do not remove it.
-  clientId: 157732643487-bkqove0t2gjbeo4kna4u2t510mihkddb.apps.googleusercontent.com
+# The deployment environment for a stack.
+deployAccount: '089370838833'
+deployRegion: us-east-1
 
-facebook:
-  # Set 'appId' to an empty string ('') if you are not using facebook login. Do not remove it.
-  appId: 627402469487090
-
-apple:
-  # Set 'servicesId' to an empty string ('') if you are not using apple login. Do not remove it.
-  servicesId: tw.com.is-land.drinkshop.dev.sid
-  teamId: NWQFXNWHUL
-  keyId: 556AVAQBKF
+sourceConfig:
+  gitRepo: eechih/aws-serverless-starter
+  gitBranch: main
 
 domainConfig:
   # Set 'nsDomain' to an empty string ('') if you are not using custom domains. Do not remove it.
@@ -28,5 +20,31 @@ domainConfig:
   domainPrefixes:
     dev: dev.
     stg: stg.
-    prod: 'prod.'
-    local: ''
+    prod: ''
+
+  apiCertificateArns:
+    dev: ''
+    stg: ''
+    prod: ''
+
+identityProviders:
+  google:
+    # Set 'clientId' to an empty string ('') if you are not using google login. Do not remove it.
+    clientId: 157732643487-bkqove0t2gjbeo4kna4u2t510mihkddb.apps.googleusercontent.com
+    clientSecret:
+      # The ID used to load the secret from AWS Secrets Manager.
+      secretId: mydrinkshop-google-client-secret
+  facebook:
+    # Set 'appId' to an empty string ('') if you are not using facebook login. Do not remove it.
+    appId: 627402469487090
+    appSecret:
+      # The ID used to load the secret from AWS Secrets Manager.
+      secretId: mydrinkshop-facebook-app-secret
+  apple:
+    # Set 'servicesId' to an empty string ('') if you are not using apple login. Do not remove it.
+    servicesId: tw.com.is-land.drinkshop.dev.sid
+    teamId: NWQFXNWHUL
+    keyId: 556AVAQBKF
+    privateKey:
+      # The ID used to load the secret from AWS Secrets Manager.
+      secretId: mydrinkshop-apple-private-key

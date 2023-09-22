@@ -1,0 +1,90 @@
+type Mutation {
+  createInvoice(input: CreateInvoiceInput!): Invoice
+  deleteInvoice(input: DeleteInvoiceInput!): Invoice
+}
+
+type Query {
+  getInvoice(invNum: ID!): Invoice
+  listInvoices(limit: Int, nextToken: String): InvoiceConnection
+  randomEmployees(
+    version: String!
+    limit: Int
+    prGroup: String
+  ): EmployeeConnection
+}
+
+type Subscription {
+  onCreateInvoice: Invoice @aws_subscribe(mutations: ["createInvoice"])
+  onDeleteInvoice: Invoice @aws_subscribe(mutations: ["deleteInvoice"])
+}
+
+type Invoice {
+  # 發票號碼 (10碼)
+  invNum: ID!
+  # 發票開立日期 yyyyMMdd
+  invDate: String
+  # 發票狀態
+  invStatus: String
+  # 對獎發票期別
+  invPeriod: String
+  # 賣方名稱
+  sellerName: String
+  # 賣方營業人統編
+  sellerBan: String
+  # 賣方營業人地址
+  sellerAddress: String
+  # 發票開立時間(HH:mm:ss)
+  invoiceTime: String
+  # 買方營業人統編
+  buyerBan: String
+  # 幣別
+  currency: String
+  # 總金額
+  amount: String
+  # 發票明細
+  details: [InvoiceDetail]
+  createdAt: AWSDateTime
+  updatedAt: AWSDateTime
+  owner: String
+}
+
+type InvoiceDetail {
+  # 明細編號
+  rowNum: String
+  # 品名
+  description: String
+  # 數量
+  quantity: String
+  # 單價
+  unitPrice: String
+  # 小計
+  amount22: String
+}
+
+type InvoiceConnection {
+  items: [Invoice]
+  scannedCount: Int
+  nextToken: String
+}
+
+input CreateInvoiceInput {
+  barcode: String
+  qrcode: String
+}
+
+input DeleteInvoiceInput {
+  invNum: String!
+}
+
+type Employee {
+  name: String!
+  grade: String!
+  isShard: Boolean
+}
+
+type EmployeeConnection {
+  items: [Employee]
+  scannedCount: Int
+  nextToken: String
+  version: String!
+}

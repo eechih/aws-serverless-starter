@@ -1,48 +1,82 @@
 import * as fs from 'fs'
 import { load } from 'js-yaml'
-import * as path from 'path'
+import { resolve } from 'path'
 
-let app
+export interface AppConfig {
+  appName: string
+  deployAccount: string
+  deployRegion: string
+  sourceConfig: SourceConfig
+  domainConfig?: DomainConfig
+  identityProviders: IdentityProviders
+}
+
+export interface SourceConfig {
+  gitRepo: string
+  gitBranch: string
+}
+
+export interface DomainConfig {
+  nsDomain: string
+  domainPrefixes: Record<string, string>
+  apiCertificateArns: Record<string, string>
+}
+
+export interface IdentityProviders {
+  google?: {
+    clientId: string
+    clientSecret: {
+      secretId: string
+    }
+  }
+  facebook?: {
+    appId: string
+    appSecret: {
+      secretId: string
+    }
+  }
+  apple?: {
+    servicesId: string
+    teamId: string
+    keyId: string
+    privateKey: {
+      secretId: string
+    }
+  }
+}
+
+export interface Environment {
+  account: string
+  region: string
+}
+
+let appConfig
 try {
-  app = load(fs.readFileSync(path.resolve('./app.yml'), 'utf8')) as Record<
-    string,
-    any
-  >
+  const filePath = resolve('./app.yml')
+  appConfig = load(fs.readFileSync(filePath, 'utf8')) as Record<string, any>
+  console.log('AppConfig:', JSON.stringify(appConfig, null, 2))
 } catch (err) {
   console.log(err)
   throw new Error('The application must be configured in app.yml')
 }
 
 export default {
-  appName: app.appName,
-  gitRepo: app.gitRepo,
-  gitBranch: app.gitBranch,
-  nsDomain: app.domainConfig.nsDomain,
-  siteBucketPrefix: app.domainConfig.siteBucketPrefix,
-  google: {
-    clientId: app.google.clientId,
-    clientSecret: {
-      // The ID used to load the secret from AWS Secrets Manager.
-      secretId: `${app.appName}-google-client-secret`,
-    },
-    enabled: app.google.clientId !== '',
+  appName: appConfig.appName,
+  deployAccount: appConfig.deployAccount,
+  deployRegion: appConfig.deployRegion,
+  sourceConfig: appConfig.sourceConfig,
+  domainConfig: appConfig.domainConfig.nsDomain
+    ? appConfig.domainConfig
+    : undefined,
+  identityProviders: {
+    google: appConfig.identityProviders.google.clientId
+      ? appConfig.identityProviders.google
+      : undefined,
+    facebook: appConfig.identityProviders.facebook.appId
+      ? appConfig.identityProviders.facebook
+      : undefined,
+    apple: appConfig.identityProviders.apple.servicesId
+      ? appConfig.identityProviders.apple
+      : undefined,
   },
-  facebook: {
-    appId: app.facebook.appId,
-    appSecret: {
-      // The ID used to load the secret from AWS Secrets Manager.
-      secretId: `${app.appName}-facebook-app-secret`,
-    },
-    enabled: app.facebook.appId !== '',
-  },
-  apple: {
-    servicesId: app.apple.servicesId,
-    teamId: app.apple.teamId,
-    keyId: app.apple.keyId,
-    privateKey: {
-      // The ID used to load the secret from AWS Secrets Manager.
-      secretId: `${app.appName}-apple-private-key`,
-    },
-    enabled: app.apple.servicesId !== '',
-  },
-}
+} as AppConfig

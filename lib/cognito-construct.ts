@@ -19,8 +19,8 @@ export class CognitoConstruct extends Construct {
 
   constructor(scope: Construct, id: string, props: CognitoConstructProps) {
     super(scope, id)
-
     const { stageName } = props
+    const { google, facebook, apple } = config.identityProviders
 
     this.userPool = new cognito.UserPool(this, 'UserPool', {
       userPoolName: `${config.appName}-${stageName}_userpool`,
@@ -57,15 +57,9 @@ export class CognitoConstruct extends Construct {
       generateSecret: false,
       supportedIdentityProviders: [
         cognito.UserPoolClientIdentityProvider.COGNITO,
-        ...(config.google.enabled
-          ? [cognito.UserPoolClientIdentityProvider.GOOGLE]
-          : []),
-        ...(config.facebook.enabled
-          ? [cognito.UserPoolClientIdentityProvider.FACEBOOK]
-          : []),
-        ...(config.apple.enabled
-          ? [cognito.UserPoolClientIdentityProvider.APPLE]
-          : []),
+        ...(google ? [cognito.UserPoolClientIdentityProvider.GOOGLE] : []),
+        ...(facebook ? [cognito.UserPoolClientIdentityProvider.FACEBOOK] : []),
+        ...(apple ? [cognito.UserPoolClientIdentityProvider.APPLE] : []),
       ],
       authFlows: {
         userPassword: true,
@@ -85,15 +79,15 @@ export class CognitoConstruct extends Construct {
       },
     })
 
-    if (config.google.enabled) {
+    if (google) {
       this.identityProviderGoogle = new cognito.UserPoolIdentityProviderGoogle(
         this,
         'UserPoolIdentityProviderGoogle',
         {
           userPool: this.userPool,
-          clientId: config.google.clientId,
+          clientId: google.clientId,
           clientSecretValue: cdk.SecretValue.secretsManager(
-            config.google.clientSecret.secretId
+            google.clientSecret.secretId
           ),
           scopes: ['profile'],
           attributeMapping: {
@@ -104,16 +98,16 @@ export class CognitoConstruct extends Construct {
       this.userPoolClient.node.addDependency(this.identityProviderGoogle)
     }
 
-    if (config.facebook.enabled) {
+    if (facebook) {
       this.identityProviderFacebook =
         new cognito.UserPoolIdentityProviderFacebook(
           this,
           'UserPoolIdentityProviderFacebook',
           {
             userPool: this.userPool,
-            clientId: config.facebook.appId,
+            clientId: facebook.appId,
             clientSecret: cdk.SecretValue.secretsManager(
-              config.facebook.appSecret.secretId
+              facebook.appSecret.secretId
             ).unsafeUnwrap(),
             scopes: ['public_profile'],
             attributeMapping: {
@@ -124,17 +118,17 @@ export class CognitoConstruct extends Construct {
       this.userPoolClient.node.addDependency(this.identityProviderFacebook)
     }
 
-    if (config.apple.enabled) {
+    if (apple) {
       this.identityProviderApple = new cognito.UserPoolIdentityProviderApple(
         this,
         'UserPoolIdentityProviderApple',
         {
           userPool: this.userPool,
-          clientId: config.apple.servicesId,
-          teamId: config.apple.teamId,
-          keyId: config.apple.keyId,
+          clientId: apple.servicesId,
+          teamId: apple.teamId,
+          keyId: apple.keyId,
           privateKey: cdk.SecretValue.secretsManager(
-            config.apple.privateKey.secretId
+            apple.privateKey.secretId
           ).unsafeUnwrap(),
           scopes: ['public_profile'],
           attributeMapping: {
@@ -155,15 +149,9 @@ export class CognitoConstruct extends Construct {
         },
       ],
       supportedLoginProviders: {
-        ...(config.google.enabled
-          ? { 'accounts.google.com': config.google.clientId }
-          : {}),
-        ...(config.facebook.enabled
-          ? { 'graph.facebook.com': config.facebook.appId }
-          : {}),
-        ...(config.apple.enabled
-          ? { 'appleid.apple.com': config.apple.servicesId }
-          : {}),
+        ...(google ? { 'accounts.google.com': google.clientId } : {}),
+        ...(facebook ? { 'graph.facebook.com': facebook.appId } : {}),
+        ...(apple ? { 'appleid.apple.com': apple.servicesId } : {}),
       },
     })
   }
