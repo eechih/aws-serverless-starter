@@ -34,7 +34,7 @@ export class AppsyncConstruct extends Construct {
       },
       xrayEnabled: true,
       logConfig: {
-        excludeVerboseContent: false,
+        excludeVerboseContent: true,
         fieldLogLevel: appsync.FieldLogLevel.ALL,
       },
     })

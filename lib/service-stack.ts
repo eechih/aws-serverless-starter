@@ -1,11 +1,15 @@
 import { Stack, StackProps } from 'aws-cdk-lib'
 import { Construct } from 'constructs'
 
+import { ApigwConstruct } from './apigw-construct'
 import { AppsyncConstruct } from './appsync-construct'
 import { CognitoConstruct } from './cognito-construct'
 import { IamConstruct } from './iam-construct'
 import { Route53Construct } from './route53-construct'
 import { S3Construct } from './s3-construct'
+
+import Configuration from './configuration'
+import Employee from './employee'
 
 export interface ServiceStackProps extends StackProps {
   stageName: string
@@ -31,11 +35,23 @@ export class ServiceStack extends Stack {
       stageName,
     })
 
+    const apigw = new ApigwConstruct(this, 'apigw', { stageName })
+
     const appsync = new AppsyncConstruct(this, 'appsync', {
       stageName,
       ...route53,
     })
 
     cognito.attachRolesToIdentityPool(iam.authRole, iam.unauthRole)
+
+    new Configuration(this, 'configuration', {
+      bucket: s3.bucket,
+      httpApi: apigw.httpApi,
+    })
+
+    new Employee(this, 'employee', {
+      bucket: s3.bucket,
+      graphqlApi: appsync.graphqlApi,
+    })
   }
 }
