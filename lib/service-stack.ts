@@ -10,6 +10,7 @@ import { S3Construct } from './s3-construct'
 
 import Configuration from './configuration'
 import Employee from './employee'
+import Invoice from './invoice'
 
 export interface ServiceStackProps extends StackProps {
   stageName: string
@@ -51,6 +52,10 @@ export class ServiceStack extends Stack {
 
     new Employee(this, 'employee', {
       bucket: s3.bucket,
+      graphqlApi: appsync.graphqlApi,
+    })
+
+    new Invoice(this, 'invoice', {
       graphqlApi: appsync.graphqlApi,
     })
   }

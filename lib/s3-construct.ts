@@ -46,5 +46,9 @@ export class S3Construct extends Construct {
         }
       })(),
     })
+
+    new cdk.CfnOutput(this, 'BucketName', {
+      value: this.bucket.bucketName,
+    })
   }
 }

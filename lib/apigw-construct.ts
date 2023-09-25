@@ -1,4 +1,5 @@
 import * as apigwv2 from '@aws-cdk/aws-apigatewayv2-alpha'
+import * as cdk from 'aws-cdk-lib'
 import { Construct } from 'constructs'
 
 import config from './config'
@@ -34,6 +35,10 @@ export class ApigwConstruct extends Construct {
         ],
         allowCredentials: true,
       },
+    })
+
+    new cdk.CfnOutput(this, 'HttpApiEndpoint', {
+      value: this.httpApi.apiEndpoint,
     })
   }
 }

@@ -71,5 +71,9 @@ export class AppsyncConstruct extends Construct {
 
       this.graphqlEndpoint = `https://${apiDomainName}/graphql`
     }
+
+    new cdk.CfnOutput(this, 'GraphqlEndpoint', {
+      value: this.graphqlEndpoint,
+    })
   }
 }

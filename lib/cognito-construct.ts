@@ -11,6 +11,7 @@ export interface CognitoConstructProps {
 
 export class CognitoConstruct extends Construct {
   public readonly userPool: cognito.UserPool
+  public readonly userPoolDomain: cognito.UserPoolDomain
   public readonly userPoolClient: cognito.IUserPoolClient
   public readonly identityProviderGoogle: cognito.UserPoolIdentityProviderGoogle
   public readonly identityProviderFacebook: cognito.UserPoolIdentityProviderFacebook
@@ -50,6 +51,11 @@ export class CognitoConstruct extends Construct {
             return cdk.RemovalPolicy.RETAIN
         }
       })(),
+    })
+
+    this.userPoolDomain = new cognito.UserPoolDomain(this, 'UserPoolDomain', {
+      userPool: this.userPool,
+      cognitoDomain: { domainPrefix: `${config.appName}-${stageName}` },
     })
 
     this.userPoolClient = new cognito.UserPoolClient(this, 'UserPoolClient', {
@@ -153,6 +159,26 @@ export class CognitoConstruct extends Construct {
         ...(facebook ? { 'graph.facebook.com': facebook.appId } : {}),
         ...(apple ? { 'appleid.apple.com': apple.servicesId } : {}),
       },
+    })
+
+    new cdk.CfnOutput(this, 'UserPoolId', {
+      value: this.userPool.userPoolId,
+    })
+
+    new cdk.CfnOutput(this, 'UserPoolClientId', {
+      value: this.userPoolClient.userPoolClientId,
+    })
+
+    new cdk.CfnOutput(this, 'IdentityPoolId', {
+      value: this.identityPool.ref,
+    })
+
+    new cdk.CfnOutput(this, 'OAuthDomain', {
+      value: `${this.userPoolDomain.domainName}.auth.${this.userPool.env.region}.amazoncognito.com`,
+    })
+
+    new cdk.CfnOutput(this, 'OAuthReturnURL', {
+      value: `https://${this.userPoolDomain.domainName}.auth.${this.userPool.env.region}.amazoncognito.com/oauth2/idpresponse`,
     })
   }
 
